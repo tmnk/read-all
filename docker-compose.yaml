@@ -1,0 +1,36 @@
+version: '3.8'
+services:
+  db:
+    image: postgres
+    environment:
+      POSTGRES_DB: restapi_dev
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+    networks:
+      - customNetwork   
+  migrate:
+    image: migrate/migrate
+    volumes:
+      - ./migrations:/migrations
+    networks:
+      - customNetwork
+    depends_on:
+      - db
+    command: -source=file://migrations -database postgres://postgres:1234@db:5432/restapi_dev?sslmode=disable up
+    restart: on-failure
+  go:
+    build: 
+      context: .
+      dockerfile: ./Dockerfile
+    ports:
+      - 8080:8080
+    networks:
+      - customNetwork
+    container_name: go
+    restart: always
+    depends_on:
+      - migrate
+
+networks:
+  customNetwork: 
+    driver: bridge
