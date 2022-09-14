@@ -7,10 +7,8 @@ RUN go mod download && go mod verify
 
 COPY . .
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -v -o /usr/local/bin/app ./...
-RUN ls
 
 FROM scratch
-
 COPY --from=build /usr/local/bin/app /usr/local/bin/app
 
 ENTRYPOINT ["/usr/local/bin/app"]
